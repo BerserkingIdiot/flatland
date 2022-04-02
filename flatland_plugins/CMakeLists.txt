@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   flatland_msgs
   std_msgs
+  pedsim_msgs
 )
 
 find_package(Eigen3 REQUIRED)
@@ -70,17 +71,20 @@ include_directories(
 # Declare a C++ library
 add_library(flatland_plugins_lib
   src/laser.cpp
-  src/tricycle_drive.cpp
+  #src/tricycle_drive.cpp
   src/diff_drive.cpp
   src/dynamics_limits.cpp
   src/model_tf_publisher.cpp
   src/update_timer.cpp
-  src/bumper.cpp
+  #src/bumper.cpp
   src/tween.cpp
-  src/bool_sensor.cpp
-  src/world_modifier.cpp
-  src/world_random_wall.cpp
-  src/gps.cpp
+  #src/bool_sensor.cpp
+  #src/world_modifier.cpp
+  #src/world_random_wall.cpp
+  #src/gps.cpp
+  src/pedsim_movement.cpp
+  src/triangle_profile.cpp
+  include/flatland_plugins/walking_profile.h
 )
 
 add_dependencies(flatland_plugins_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

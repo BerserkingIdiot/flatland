@@ -42,6 +42,8 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * Modified by Ronja Gueldenring
  */
 
 #include <Box2D/Box2D.h>
@@ -64,6 +66,7 @@ World::World()
       int_marker_manager_(&models_, &plugin_manager_) {
   physics_world_ = new b2World(gravity_);
   physics_world_->SetContactListener(this);
+  world_step_time_ = 0.0;
 }
 
 World::~World() {
@@ -98,13 +101,22 @@ World::~World() {
   ROS_INFO_NAMED("World", "World destroyed");
 }
 
+//Modified by Ronja Gueldenring
 void World::Update(Timekeeper &timekeeper) {
-  if (!IsPaused()) {
+  if (!IsPaused() && world_step_) {
     plugin_manager_.BeforePhysicsStep(timekeeper);
     physics_world_->Step(timekeeper.GetStepSize(), physics_velocity_iterations_,
                          physics_position_iterations_);
     timekeeper.StepTime();
     plugin_manager_.AfterPhysicsStep(timekeeper);
+
+    world_step_time_ -= timekeeper.GetStepSize();
+    // ROS_WARN("world_step_time_: %f", world_step_time_);
+    // ROS_WARN("step_size: %f", timekeeper.GetStepSize());
+    if(world_step_time_ <= 0.0){
+      // ROS_WARN("real time factor: %f", 0.1/(ros::WallTime::now() - step_start_).toSec());
+      world_step_ = false;
+    }
   }
   int_marker_manager_.update();
 }
@@ -289,6 +301,15 @@ void World::LoadModel(const std::string &model_yaml_path, const std::string &ns,
   m->DebugOutput();
 }
 
+Model * World::GetModel(std::string &name){
+  for (unsigned int i = 0; i < models_.size(); i++) {
+    if (models_[i]->GetName() == name) {
+      return models_[i];
+    }
+  }
+  return NULL;
+}
+
 void World::DeleteModel(const std::string &name) {
   bool found = false;
 
@@ -338,6 +359,21 @@ void World::TogglePaused() { service_paused_ = !service_paused_; }
 
 bool World::IsPaused() {
   return service_paused_ || int_marker_manager_.isManipulating();
+}
+
+bool World::Step(float step_time) {
+  if (!world_step_){
+    step_start_ = ros::WallTime::now();
+    world_step_time_ = step_time;
+    world_step_ = true;
+    return true;
+  }else {
+    return false;
+  }
+}
+
+bool World::isInStep(){
+  return world_step_;
 }
 
 void World::DebugVisualize(bool update_layers) {

@@ -165,8 +165,7 @@ void DiffDrive::OnInitialize(const YAML::Node& config) {
                   odom_pose_noise[1], odom_pose_noise[2], odom_twist_noise[0],
                   odom_twist_noise[1], odom_twist_noise[2], pub_rate);
 }
-
-void DiffDrive::BeforePhysicsStep(const Timekeeper& timekeeper) {
+void DiffDrive::AfterPhysicsStep(const Timekeeper& timekeeper) {
   bool publish = update_timer_.CheckUpdate(timekeeper);
 
   b2Body* b2body = body_->physics_body_;
@@ -203,6 +202,10 @@ void DiffDrive::BeforePhysicsStep(const Timekeeper& timekeeper) {
   // Update odom+ground truth messages if needed
 
   if (publish) {
+    b2Body* b2body = body_->physics_body_;
+    b2Vec2 position = b2body->GetPosition();
+    float angle = b2body->GetAngle();
+
     // get the state of the body and publish the data
     b2Vec2 linear_vel_local =
         b2body->GetLinearVelocityFromLocalPoint(b2Vec2(0, 0));
@@ -214,8 +217,8 @@ void DiffDrive::BeforePhysicsStep(const Timekeeper& timekeeper) {
     ground_truth_msg_.pose.pose.position.z = 0;
     ground_truth_msg_.pose.pose.orientation =
         tf::createQuaternionMsgFromYaw(angle);
-    ground_truth_msg_.twist.twist.linear.x = linear_vel_local.x;
-    ground_truth_msg_.twist.twist.linear.y = linear_vel_local.y;
+    ground_truth_msg_.twist.twist.linear.x = sqrt(pow(linear_vel_local.x,2) + pow(linear_vel_local.y,2));
+    ground_truth_msg_.twist.twist.linear.y = 0.0; //linear_vel_local.y;
     ground_truth_msg_.twist.twist.linear.z = 0;
     ground_truth_msg_.twist.twist.angular.x = 0;
     ground_truth_msg_.twist.twist.angular.y = 0;
@@ -230,7 +233,7 @@ void DiffDrive::BeforePhysicsStep(const Timekeeper& timekeeper) {
     odom_msg_.pose.pose.orientation =
         tf::createQuaternionMsgFromYaw(angle + noise_gen_[2](rng_));
     odom_msg_.twist.twist.linear.x += noise_gen_[3](rng_);
-    odom_msg_.twist.twist.linear.y += noise_gen_[4](rng_);
+    odom_msg_.twist.twist.linear.y == 0.0; //noise_gen_[4](rng_);
     odom_msg_.twist.twist.angular.z += noise_gen_[5](rng_);
 
     if (enable_odom_pub_) {
