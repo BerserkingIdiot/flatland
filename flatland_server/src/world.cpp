@@ -103,7 +103,7 @@ World::~World() {
 
 //Modified by Ronja Gueldenring
 void World::Update(Timekeeper &timekeeper) {
-  if (!IsPaused() && world_step_ && manual_stepping_) {
+  if (!IsPaused() && ((world_step_ && manual_stepping_) || !manual_stepping_)) {
     plugin_manager_.BeforePhysicsStep(timekeeper);
     physics_world_->Step(timekeeper.GetStepSize(), physics_velocity_iterations_,
                          physics_position_iterations_);
