@@ -59,12 +59,14 @@ namespace flatland_server {
 
 SimulationManager::SimulationManager(std::string world_yaml_file,
                                      double update_rate, double step_size,
-                                     bool show_viz, double viz_pub_rate)
+                                     bool show_viz, double viz_pub_rate, 
+                                     bool manual_stepping)
     : world_(nullptr),
       update_rate_(update_rate),
       step_size_(step_size),
       show_viz_(show_viz),
       viz_pub_rate_(viz_pub_rate),
+      manual_stepping_(manual_stepping),
       world_yaml_file_(world_yaml_file) {
   ROS_INFO_NAMED("SimMan",
                  "Simulation params: world_yaml_file(%s) update_rate(%f), "
@@ -78,7 +80,7 @@ void SimulationManager::Main() {
   run_simulator_ = true;
 
   try {
-    world_ = World::MakeWorld(world_yaml_file_);
+    world_ = World::MakeWorld(world_yaml_file_, manual_stepping_);
     ROS_INFO_NAMED("SimMan", "World loaded");
   } catch (const std::exception& e) {
     ROS_FATAL_NAMED("SimMan", "%s", e.what());

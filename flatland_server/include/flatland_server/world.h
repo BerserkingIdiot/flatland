@@ -210,9 +210,10 @@ class World : public b2ContactListener {
    * @brief factory method to create a instance of the world class. Cleans all
    * the inputs before instantiation of the class. TThrows YAMLException.
    * @param[in] yaml_path Path to the world yaml file
+   * @param[in] manual_stepping flag to determine whether the simulation requires usage of the step service
    * @return pointer to a new world
    */
-  static World *MakeWorld(const std::string &yaml_path);
+  static World *MakeWorld(const std::string &yaml_path, bool manual_stepping);
 
   /**
    * @brief Publish debug visualizations for everything
@@ -225,6 +226,7 @@ private:
   // True if step in world should be taken.
   bool world_step_;
   ros::WallTime step_start_;
+  bool manual_stepping_; //flag to determine whether the simulation requires usage of the step service
 
 };
 };      // namespace flatland_server

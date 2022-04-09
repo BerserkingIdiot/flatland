@@ -103,7 +103,7 @@ World::~World() {
 
 //Modified by Ronja Gueldenring
 void World::Update(Timekeeper &timekeeper) {
-  if (!IsPaused() && world_step_) {
+  if (!IsPaused() && world_step_ && manual_stepping_) {
     plugin_manager_.BeforePhysicsStep(timekeeper);
     physics_world_->Step(timekeeper.GetStepSize(), physics_velocity_iterations_,
                          physics_position_iterations_);
@@ -137,7 +137,7 @@ void World::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse) {
   plugin_manager_.PostSolve(contact, impulse);
 }
 
-World *World::MakeWorld(const std::string &yaml_path) {
+World *World::MakeWorld(const std::string &yaml_path, bool manual_stepping) {
   YamlReader world_reader = YamlReader(yaml_path);
   YamlReader prop_reader = world_reader.Subnode("properties", YamlReader::MAP);
   int v = prop_reader.Get<int>("velocity_iterations", 10);
@@ -149,6 +149,7 @@ World *World::MakeWorld(const std::string &yaml_path) {
   w->world_yaml_dir_ = boost::filesystem::path(yaml_path).parent_path();
   w->physics_velocity_iterations_ = v;
   w->physics_position_iterations_ = p;
+  w->manual_stepping_ = manual_stepping;
 
   try {
     YamlReader layers_reader = world_reader.Subnode("layers", YamlReader::LIST);

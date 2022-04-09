@@ -63,6 +63,7 @@ class SimulationManager {
   double step_size_;             ///< step size
   bool show_viz_;                ///< flag to determine if to show visualization
   double viz_pub_rate_;          ///< rate to publish visualization
+  bool manual_stepping_;         ///< flag to determine whether the simulation requires usage of the step service
   std::string world_yaml_file_;  ///< path to the world file
 
   /**
@@ -72,10 +73,12 @@ class SimulationManager {
    * @param[in] step_size Time to step each iteration
    * @param[in] show_viz if to show visualization
    * @param[in] viz_pub_rate rate to publish visualization
+   * @param[in] manual_stepping flag to determine whether the simulation requires usage of the step service
    * behaving ones
    */
   SimulationManager(std::string world_yaml_file, double update_rate,
-                    double step_size, bool show_viz, double viz_pub_rate);
+                    double step_size, bool show_viz, double viz_pub_rate,
+                    bool manual_stepping);
 
   /**
    * This method contains the loop that runs the simulation

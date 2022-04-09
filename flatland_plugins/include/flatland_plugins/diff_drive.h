@@ -94,7 +94,7 @@ class DiffDrive : public flatland_server::ModelPlugin {
    * @brief         override the BeforePhysicsStep method
    * @param[in]     config The plugin YAML node
    */
-  void BeforePhysicsStep(const Timekeeper& timekeeper) override;
+  //void BeforePhysicsStep(const Timekeeper& timekeeper) override;
 
   /**
    * @name          AfterPhysicsStep
